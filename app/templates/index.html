@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>url-shortener</title>
+  <meta name="description" content="Create a short link, with an optional custom alias and expiry.">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="wrap">
+    <h1>url-shortener</h1>
+    <p class="lede">Paste a link, get a short one. Custom alias and expiry are optional.</p>
+
+    <form id="form" novalidate>
+      <div class="field">
+        <label for="url">Long URL</label>
+        <input type="url" id="url" name="url" required placeholder="https://example.com/very/long/path"
+               autocomplete="off" spellcheck="false" inputmode="url">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="alias">Custom alias <span class="hint">(optional)</span></label>
+          <input type="text" id="alias" name="alias" placeholder="my-link"
+                 pattern="[A-Za-z0-9_-]{3,32}" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="field">
+          <label for="ttl">Expire after <span class="hint">(optional)</span></label>
+          <select id="ttl" name="ttl_days">
+            <option value="">never</option>
+            <option value="1">1 day</option>
+            <option value="7">7 days</option>
+            <option value="30">30 days</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" id="submit">Shorten</button>
+    </form>
+
+    <output id="result" class="result" aria-live="polite" hidden></output>
+    <p id="error" class="error" role="alert" hidden></p>
+  </main>
+
+  <script>
+    const form = document.getElementById("form");
+    const result = document.getElementById("result");
+    const errorEl = document.getElementById("error");
+    const submit = document.getElementById("submit");
+
+    function show(el, html) { el.innerHTML = html; el.hidden = false; }
+    function hide(el) { el.hidden = true; el.innerHTML = ""; }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hide(result); hide(errorEl);
+      submit.disabled = true;
+
+      const url = form.url.value.trim();
+      const alias = form.alias.value.trim();
+      const ttl = form.ttl_days.value;
+      const body = { url };
+      if (alias) body.alias = alias;
+      if (ttl) body.ttl_days = Number(ttl);
+
+      try {
+        const res = await fetch("/api/links", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          const msg = Array.isArray(data.detail)
+            ? data.detail.map((d) => d.msg).join("; ")
+            : (data.detail || "Something went wrong.");
+          show(errorEl, msg);
+          return;
+        }
+        const stats = `/api/links/${encodeURIComponent(data.code)}/stats`;
+        show(result, `
+          <a class="short" href="${data.short_url}">${data.short_url}</a>
+          <button type="button" id="copy">Copy</button>
+          <p class="meta">
+            &rarr; ${data.target_url}<br>
+            ${data.expires_at ? "expires " + new Date(data.expires_at).toLocaleString() : "no expiry"}
+            &middot; <a href="${stats}">stats</a>
+          </p>`);
+        document.getElementById("copy").addEventListener("click", async () => {
+          await navigator.clipboard.writeText(data.short_url);
+          document.getElementById("copy").textContent = "Copied";
+        });
+      } catch {
+        show(errorEl, "Network error — please try again.");
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

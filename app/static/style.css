@@ -1,0 +1,97 @@
+:root {
+  --bg: #fbfbfa;
+  --fg: #1a1a1a;
+  --muted: #6b6b6b;
+  --border: #d9d9d6;
+  --accent: #2f6f4f;
+  --accent-fg: #ffffff;
+  --error: #b3261e;
+  --radius: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16171a;
+    --fg: #ececec;
+    --muted: #9a9a9a;
+    --border: #33353a;
+    --accent: #58b98a;
+    --accent-fg: #0c1a12;
+    --error: #f2b8b5;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.wrap {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 5vw, 4rem) 1.25rem;
+}
+
+h1 { margin: 0 0 .25rem; font-size: 1.6rem; letter-spacing: -0.01em; }
+.lede { margin: 0 0 2rem; color: var(--muted); }
+
+form { display: grid; gap: 1.1rem; }
+.row { display: grid; gap: 1.1rem; grid-template-columns: 1fr 1fr; }
+@media (max-width: 26rem) { .row { grid-template-columns: 1fr; } }
+
+.field { display: grid; gap: .35rem; }
+label { font-weight: 600; font-size: .9rem; }
+.hint { font-weight: 400; color: var(--muted); }
+
+input, select, button {
+  font: inherit;
+  padding: .6rem .7rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button[type="submit"] {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: transparent;
+  font-weight: 600;
+  cursor: pointer;
+  padding-inline: 1.2rem;
+  justify-self: start;
+}
+button[disabled] { opacity: .55; cursor: progress; }
+
+/* <output> defaults to display:inline, which ignores margin-top and lets the
+   result box ride up over the Shorten button — force block flow. */
+.result, .error { display: block; margin-top: 1.5rem; }
+
+.result {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+}
+.short { font-size: 1.15rem; font-weight: 700; color: var(--accent); word-break: break-all; }
+.result button {
+  margin-left: .5rem;
+  cursor: pointer;
+  font-size: .85rem;
+  padding: .25rem .6rem;
+}
+.meta { margin: .6rem 0 0; color: var(--muted); font-size: .9rem; }
+.meta a { color: inherit; }
+
+.error { color: var(--error); font-weight: 600; }
+
+a { color: var(--accent); }

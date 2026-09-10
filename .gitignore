@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# SQLite artifacts from local runs
+dev.db
+*.db
+_test_migrate.db
+_verify.db
+
+# Local env
+.env
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/

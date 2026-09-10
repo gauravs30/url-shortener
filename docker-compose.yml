@@ -1,0 +1,52 @@
+# Phase 1 stack: Postgres + one-shot migrations + the API.
+# Phase 2 replaces `migrate` with a k8s Job and adds a Redis service for rate limits.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: shortener
+      POSTGRES_PASSWORD: shortener
+      POSTGRES_DB: shortener
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shortener -d shortener"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["alembic", "upgrade", "head"]
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  # `docker compose --profile tools up adminer` for a quick DB browser at :8080
+  adminer:
+    image: adminer:5
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    profiles: ["tools"]
+
+volumes:
+  pgdata:
