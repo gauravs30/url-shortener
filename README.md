@@ -1,5 +1,11 @@
 # url-shortener
 
+[![Repo](https://img.shields.io/badge/GitHub-url--shortener-181717?logo=github)](https://github.com/gauravs30/url-shortener)
+[![Python](https://img.shields.io/badge/Python-3.12%2B-3776ab?logo=python&logoColor=white)](pyproject.toml)
+[![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Tests](https://img.shields.io/badge/tests-31%20passing-2f6f4f)](tests/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A small, self-hostable URL shortener — random or custom short codes, click
 analytics, link expiry, and a minimal web UI. Built with FastAPI + PostgreSQL,
 async end to end, and shipped as a Docker Compose stack.
